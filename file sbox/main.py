@@ -110,10 +110,7 @@ def main():
         else:
             if mode == "Encrypt":
                 ciphertext = encrypt_text(text, key)
-            
-                entropy_result = compute_entropy(ciphertext.encode())
-                entropy_value = entropy_result["entropy"]
-            
+                entropy_value = compute_entropy(ciphertext.encode())
                 st.subheader("Ciphertext")
                 st.code(ciphertext)
                 st.metric("Entropy", f"{entropy_value:.4f}")
