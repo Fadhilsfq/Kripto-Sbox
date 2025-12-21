@@ -1,7 +1,7 @@
 import numpy as np
 from Crypto.Cipher import AES
 
-def encrypt_image(img_array, key):
+def encrypt_image(img_array, key, sbox):
     flat = img_array.flatten()
     cipher = AES.new(key, AES.MODE_ECB)
 
