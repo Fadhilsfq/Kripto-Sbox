@@ -110,12 +110,11 @@ def main():
         else:
             if mode == "Encrypt":
                 ciphertext = encrypt_text(text, key)
-                entropy_result = compute_entropy(ct.encode())
+                entropy_result = compute_entropy(ciphertext.encode())
                 entropy_value = entropy_result["entropy"]
-
                 st.subheader("Ciphertext")
                 st.code(ciphertext)
-                st.metric("Entropy", f"{entropy:.4f}")
+                st.metric("Entropy", f"{entropy_value:.4f}")
 
             else:
                 plaintext = decrypt_text(text, key)
