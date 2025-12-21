@@ -19,9 +19,9 @@ from utils.bit_independence import calculate_bic_sac, calculate_bic_nl
 def main():
     st.title("S-box44 Cryptographic Evaluation & AES Encryption")
     st.text("Anggota kelompok:")
-    st.header("Muhammad Syafiq Fadhilah (4611422033)")
-    st.header("Melani Siyamafiroh (4611422141)")
-    st.header("Livia Citra Atrianda (4611422142)")
+    st.text("Muhammad Syafiq Fadhilah (4611422033)")
+    st.text("Melani Siyamafiroh (4611422141)")
+    st.text("Livia Citra Atrianda (4611422142)")
 
     # SESSION STATE
     if "sbox" not in st.session_state:
