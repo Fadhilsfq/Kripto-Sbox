@@ -110,10 +110,7 @@ def main():
         else:
             if mode == "Encrypt":
                 ciphertext = encrypt_text(text, key, st.session_state.sbox)
-                entropy_result = compute_entropy(ciphertext.encode())
-                entropy_value = (entropy_result ["entropy"]
-                                 if isinstance(entropy_result, dict)
-                                 else entropy_result)
+                entropy_value = compute_entropy(ciphertext.encode())
                 
                 st.subheader("Ciphertext")
                 st.code(ciphertext)
@@ -147,10 +144,8 @@ def main():
                     (img_key + "1").encode().ljust(16, b"\0")[:16]
                 )
 
-                entropy_result = compute_entropy(cipher1)
-                entropy_value = (entropy_result ["entropy"]
-                                 if isinstance(entropy_result, dict)
-                                 else entropy_result)
+                entropy_value = compute_entropy(cipher1)
+    
                 npcr = calculate_npcr(cipher1, cipher2)
                 uaci = calculate_uaci(cipher1, cipher2)
 
