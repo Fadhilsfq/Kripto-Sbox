@@ -109,8 +109,12 @@ def main():
             st.error("Key harus 16 byte (AES-128).")
         else:
             if mode == "Encrypt":
-                ciphertext = encrypt_text(text, key)
-                entropy_value = compute_entropy(ciphertext.encode())
+                ciphertext = encrypt_text(text, key, st.session_state.sbox)
+                entropy_result = compute_entropy(ciphertext.encode())
+                entropy_value = (entropy_result ["entropy"]
+                                 if isinstance(entropy_result, dict)
+                                 else entropy_result)
+                
                 st.subheader("Ciphertext")
                 st.code(ciphertext)
                 st.metric("Entropy", f"{entropy_value:.4f}")
@@ -134,7 +138,7 @@ def main():
 
             img = Image.open(uploaded_img).convert("RGB")
             img_np = np.array(img)
-            key_bytes = img_key.encode()
+            key_bytes = img_key.encode().ljust(16, b"\0")[:16]
 
             if st.button("Encrypt Image"):
                 cipher1 = encrypt_image(img_np, key_bytes)
@@ -143,14 +147,18 @@ def main():
                     (img_key + "1").encode().ljust(16, b"\0")[:16]
                 )
 
-                entropy = compute_entropy(cipher1)
+                entropy_result = compute_entropy(cipher1)
+                entropy_value = (entropy_result ["entropy"]
+                                 if isinstance(entropy_result, dict)
+                                 else entropy_result)
                 npcr = calculate_npcr(cipher1, cipher2)
                 uaci = calculate_uaci(cipher1, cipher2)
 
                 st.image(cipher1, caption="Cipher Image", clamp=True)
+                st.caption("NPCR dan UACI dihitung dari dua cipher-image dengan kunci berbeda")
 
                 col1, col2, col3 = st.columns(3)
-                col1.metric("Entropy", f"{entropy:.4f}")
+                col1.metric("Entropy", f"{entropy_value:.4f}")
                 col2.metric("NPCR (%)", f"{npcr:.2f}")
                 col3.metric("UACI (%)", f"{uaci:.2f}")
 
