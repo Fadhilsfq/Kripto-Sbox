@@ -110,7 +110,8 @@ def main():
         else:
             if mode == "Encrypt":
                 ciphertext = encrypt_text(text, key, st.session_state.sbox)
-                entropy_value = compute_entropy(ciphertext.encode())
+                entropy_result = compute_entropy(ciphertext.encode())
+                entropy_value = entropy_result['entropy'] if isinstance(entropy_result, dict) else entropy_result
                 
                 st.subheader("Ciphertext")
                 st.code(ciphertext)
@@ -138,24 +139,29 @@ def main():
             key_bytes = img_key.encode().ljust(16, b"\0")[:16]
 
             if st.button("Encrypt Image"):
-                cipher1 = encrypt_image(img_np, key_bytes)
+                cipher1 = encrypt_image(img_np, key_bytes, st.session_state.sbox)
                 cipher2 = encrypt_image(
                     img_np,
-                    (img_key + "1").encode().ljust(16, b"\0")[:16]
+                    (img_key + "1").encode().ljust(16, b"\0")[:16],
+                    st.session_state.sbox
                 )
 
-                entropy_value = compute_entropy(cipher1)
-    
-                npcr = calculate_npcr(cipher1, cipher2)
-                uaci = calculate_uaci(cipher1, cipher2)
+                entropy_res = compute_entropy(cipher1)
+                npcr_res = calculate_npcr(cipher1, cipher2)
+                uaci_res = calculate_uaci(cipher1, cipher2)
+
+                # Ekstraksi nilai numerik
+                entropy_val = entropy_res['entropy'] if isinstance(entropy_res, dict) else entropy_res
+                npcr_val = npcr_res['npcr'] if isinstance(npcr_res, dict) else npcr_res
+                uaci_val = uaci_res['uaci'] if isinstance(uaci_res, dict) else uaci_res
 
                 st.image(cipher1, caption="Cipher Image", clamp=True)
                 st.caption("NPCR dan UACI dihitung dari dua cipher-image dengan kunci berbeda")
 
                 col1, col2, col3 = st.columns(3)
-                col1.metric("Entropy", f"{entropy_value:.4f}")
-                col2.metric("NPCR (%)", f"{npcr:.2f}")
-                col3.metric("UACI (%)", f"{uaci:.2f}")
+                col1.metric("Entropy", f"{entropy_val:.4f}")
+                col2.metric("NPCR (%)", f"{npcr_val:.2f}")
+                col3.metric("UACI (%)", f"{uaci_val:.2f}")
 
 
 if __name__ == "__main__":
