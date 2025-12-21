@@ -1,0 +1,10 @@
+/.vscode
+/3 File
+/algoritma_S1
+/analisisAlgortima_S3
+/dicoding
+/imk_S3
+/kriptografi
+/python
+/rpl.html
+/strukturData_S2
