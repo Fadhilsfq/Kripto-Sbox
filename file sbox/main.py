@@ -56,6 +56,63 @@ def main():
                     st.warning(f"S-box size is {len(sbox)}. Truncating to 256 elements.")
                     sbox = sbox[:256]  # Truncating to 256
 
+                #text encryption
+                st.divider()
+                st.header("Encryption & Decryption")
+                
+                mode = st.radio("Mode", ["Encrypt", "Decrypt"], horizontal=True)
+                plaintext = st.text_area("Plaintext" if mode=="Encrypt" else "Ciphertext")
+                key = st.text_input("Key (16 bytes)", type="password")
+                
+                if st.button(mode):
+                    if not st.session_state.sbox:
+                        st.error("S-box belum dimuat.")
+                    else:
+                        if mode == "Encrypt":
+                            ct = encrypt_text(plaintext, key)
+                            entropy = compute_entropy(ct.encode())
+                            st.subheader("Ciphertext")
+                            st.code(ct)
+                            st.metric("Entropy", f"{entropy:.4f}")
+                        else:
+                            pt = decrypt_text(plaintext, key)
+                            st.subheader("Plaintext")
+                            st.text(pt)
+                
+                #Image encryption
+                st.divider()
+                st.header("Image Encryption & Decryption")
+                
+                uploaded_img = st.file_uploader(
+                    "Upload Image", 
+                    type=["png", "jpg", "jpeg"]
+                )
+                
+                img_key = st.text_input("Image Key", type="password")
+                
+                if uploaded_img and img_key:
+                    from PIL import Image
+                
+                    img = Image.open(uploaded_img).convert("RGB")
+                    img_np = np.array(img)
+                
+                    key_bytes = img_key.encode().ljust(16, b'\0')[:16]
+                
+                    if st.button("Encrypt Image"):
+                        cipher1 = encrypt_image(img_np, key_bytes)
+                        cipher2 = encrypt_image(img_np, (img_key+"1").encode().ljust(16,b'\0')[:16])
+                
+                        entropy = compute_entropy(cipher1)
+                        npcr = calculate_npcr(cipher1, cipher2)
+                        uaci = calculate_uaci(cipher1, cipher2)
+                
+                        st.image(cipher1, caption="Cipher Image", clamp=True)
+                
+                        col1, col2, col3 = st.columns(3)
+                        col1.metric("Entropy", f"{entropy:.4f}")
+                        col2.metric("NPCR (%)", f"{npcr:.2f}")
+                        col3.metric("UACI (%)", f"{uaci:.2f}")
+                
                 # Store S-box in session state
                 st.session_state.sbox = sbox
 
@@ -113,62 +170,6 @@ def main():
     
     except Exception as e:
         st.error(f"Error processing file: {str(e)}")
-
-st.divider()
-st.header("Encryption & Decryption")
-
-mode = st.radio("Mode", ["Encrypt", "Decrypt"], horizontal=True)
-plaintext = st.text_area("Plaintext" if mode=="Encrypt" else "Ciphertext")
-key = st.text_input("Key (16 bytes)", type="password")
-
-if st.button(mode):
-    if not st.session_state.sbox:
-        st.error("S-box belum dimuat.")
-    else:
-        if mode == "Encrypt":
-            ct = encrypt_text(plaintext, key)
-            entropy = compute_entropy(ct.encode())
-            st.subheader("Ciphertext")
-            st.code(ct)
-            st.metric("Entropy", f"{entropy:.4f}")
-        else:
-            pt = decrypt_text(plaintext, key)
-            st.subheader("Plaintext")
-            st.text(pt)
-
-st.divider()
-st.header("Image Encryption & Decryption")
-
-uploaded_img = st.file_uploader(
-    "Upload Image", 
-    type=["png", "jpg", "jpeg"]
-)
-
-img_key = st.text_input("Image Key", type="password")
-
-if uploaded_img and img_key:
-    from PIL import Image
-
-    img = Image.open(uploaded_img).convert("RGB")
-    img_np = np.array(img)
-
-    key_bytes = img_key.encode().ljust(16, b'\0')[:16]
-
-    if st.button("Encrypt Image"):
-        cipher1 = encrypt_image(img_np, key_bytes)
-        cipher2 = encrypt_image(img_np, (img_key+"1").encode().ljust(16,b'\0')[:16])
-
-        entropy = compute_entropy(cipher1)
-        npcr = calculate_npcr(cipher1, cipher2)
-        uaci = calculate_uaci(cipher1, cipher2)
-
-        st.image(cipher1, caption="Cipher Image", clamp=True)
-
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Entropy", f"{entropy:.4f}")
-        col2.metric("NPCR (%)", f"{npcr:.2f}")
-        col3.metric("UACI (%)", f"{uaci:.2f}")
-
 
 
 if __name__ == '__main__':
