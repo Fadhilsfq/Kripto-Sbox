@@ -111,7 +111,7 @@ def main():
             if mode == "Encrypt":
                 ciphertext = encrypt_text(text, key, st.session_state.sbox)
                 entropy_result = compute_entropy(ciphertext.encode())
-                entropy_value = entropy_result.get['Entropy',0] if isinstance(entropy_result, dict) else entropy_result
+                entropy_value = entropy_result['shannon_entropy']
                 
                 st.subheader("Ciphertext")
                 st.code(ciphertext)
@@ -151,7 +151,7 @@ def main():
                 uaci_res = calculate_uaci(cipher1, cipher2)
 
                 # Ekstraksi nilai numerik
-                entropy_val = entropy_res['entropy'] if isinstance(entropy_res, dict) else entropy_res
+                entropy_val = entropy_res['shannon_entropy']
                 npcr_val = npcr_res['npcr'] if isinstance(npcr_res, dict) else npcr_res
                 uaci_val = uaci_res['uaci'] if isinstance(uaci_res, dict) else uaci_res
 
