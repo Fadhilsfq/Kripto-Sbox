@@ -111,7 +111,7 @@ def main():
             if mode == "Encrypt":
                 ciphertext = encrypt_text(text, key, st.session_state.sbox)
                 entropy_result = compute_entropy(ciphertext.encode())
-                entropy_value = entropy_result['Entropy'] if isinstance(entropy_result, dict) else entropy_result
+                entropy_value = entropy_result.get['Entropy',0] if isinstance(entropy_result, dict) else entropy_result
                 
                 st.subheader("Ciphertext")
                 st.code(ciphertext)
