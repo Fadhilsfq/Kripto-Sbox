@@ -14,6 +14,9 @@ from utils.avalanche_criterion import strict_avalanche_criterion
 from utils.differential_approximation import calculate_dap
 from utils.entropy import compute_entropy
 from utils.bit_independence import calculate_bic_sac, calculate_bic_nl
+from utils.algebraic_degree import compute_algebraic_degree
+from utils.correlation_immunity import compute_correlation_immunity
+from utils.transparency_order import compute_transparency_order
 
 
 def main():
@@ -85,6 +88,10 @@ def main():
         st.metric("BIC-SAC", f"{calculate_bic_sac(sbox):.10f}")
         st.metric("LAP", f"{linear_approximation_probability(sbox):.6f}")
         st.metric("DAP", f"{calculate_dap(sbox):.10f}")
+        st.metric("Algebraic Degree (AD)", compute_algebraic_degree(sbox))
+        st.metric("Correlation Immunity (CI)", compute_correlation_immunity(sbox))
+        st.metric("Transparency Order (TO)", f"{compute_transparency_order(sbox):.6f}")
+
 
         export_df = pd.DataFrame(sbox)
         buffer = io.BytesIO()
