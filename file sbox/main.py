@@ -21,6 +21,7 @@ from utils.transparency_order import compute_transparency_order
 
 def main():
     st.title("S-box44 Cryptographic Evaluation & AES Encryption")
+    st.header("Kelompok 12")
     st.text("Anggota kelompok:")
     st.text("Muhammad Syafiq Fadhilah (4611422033)")
     st.text("Melani Siyamafiroh (4611422141)")
