@@ -114,7 +114,7 @@ def main():
     text = st.text_area("Plaintext" if mode == "Encrypt" else "Ciphertext")
     key = st.text_input("Key (16 bytes)", type="password")
 
-    if st.button(mode):
+    if st.button(mode, key="btn_text"):
         if st.session_state.sbox is None:
             st.error("Silakan upload S-box terlebih dahulu.")
         elif len(key.encode()) != 16:
@@ -134,85 +134,85 @@ def main():
                 st.text(plaintext)
 
    # IMAGE ENCRYPTION
-st.divider()
-st.header("AES Image Encryption")
-
-img_mode = st.radio(
-    "Mode",
-    ["Encrypt", "Decrypt"],
-    horizontal=True,
-    key="img_mode"
-)
-
-uploaded_img = st.file_uploader(
-    "Upload Image",
-    type=["png", "jpg", "jpeg"]
-)
-
-img_key = st.text_input(
-    "Image Key (16 bytes)",
-    type="password",
-    key="img_key"
-)
-
-if st.button(img_mode):
-    if st.session_state.sbox is None:
-        st.error("Silakan upload S-box terlebih dahulu.")
-    elif uploaded_img is None:
-        st.error("Silakan upload image terlebih dahulu.")
-    elif len(img_key.encode()) != 16:
-        st.error("Key harus 16 byte (AES-128).")
-    else:
-        from PIL import Image
-
-        img = Image.open(uploaded_img).convert("RGB")
-        img_np = np.array(img)
-        key_bytes = img_key.encode().ljust(16, b"\0")[:16]
-
-        if img_mode == "Encrypt":
-            cipher1 = encrypt_image(img_np, key_bytes, st.session_state.sbox)
-            cipher2 = encrypt_image(
-                img_np,
-                (img_key + "1").encode().ljust(16, b"\0")[:16],
-                st.session_state.sbox
-            )
-
-            entropy_res = compute_entropy(cipher1)
-            npcr_res = calculate_npcr(cipher1, cipher2)
-            uaci_res = calculate_uaci(cipher1, cipher2)
-
-            entropy_val = entropy_res['shannon_entropy']
-            npcr_val = npcr_res['npcr'] if isinstance(npcr_res, dict) else npcr_res
-            uaci_val = uaci_res['uaci'] if isinstance(uaci_res, dict) else uaci_res
-
-            st.subheader("Cipher Image")
-            st.image(cipher1, clamp=True)
-            st.caption(
-                "NPCR dan UACI dihitung dari dua cipher-image "
-                "dengan kunci berbeda"
-            )
-
-            col1, col2, col3 = st.columns(3)
-            col1.metric("Entropy", f"{entropy_val:.4f}")
-            col2.metric("NPCR (%)", f"{npcr_val:.2f}")
-            col3.metric("UACI (%)", f"{uaci_val:.2f}")
-
+    st.divider()
+    st.header("AES Image Encryption")
+    
+    img_mode = st.radio(
+        "Mode",
+        ["Encrypt", "Decrypt"],
+        horizontal=True,
+        key="img_mode"
+    )
+    
+    uploaded_img = st.file_uploader(
+        "Upload Image",
+        type=["png", "jpg", "jpeg"]
+    )
+    
+    img_key = st.text_input(
+        "Image Key (16 bytes)",
+        type="password",
+        key="img_key"
+    )
+    
+    if st.button(img_mode, key="btn_image"):
+        if st.session_state.sbox is None:
+            st.error("Silakan upload S-box terlebih dahulu.")
+        elif uploaded_img is None:
+            st.error("Silakan upload image terlebih dahulu.")
+        elif len(img_key.encode()) != 16:
+            st.error("Key harus 16 byte (AES-128).")
         else:
-            try:
-                from utils.aes_image import decrypt_image
-                plain_img = decrypt_image(
+            from PIL import Image
+    
+            img = Image.open(uploaded_img).convert("RGB")
+            img_np = np.array(img)
+            key_bytes = img_key.encode().ljust(16, b"\0")[:16]
+    
+            if img_mode == "Encrypt":
+                cipher1 = encrypt_image(img_np, key_bytes, st.session_state.sbox)
+                cipher2 = encrypt_image(
                     img_np,
-                    key_bytes,
+                    (img_key + "1").encode().ljust(16, b"\0")[:16],
                     st.session_state.sbox
                 )
-                
-                st.subheader("Decrypted Image")
-                st.image(plain_img, clamp=True)
-            except NotImplementedError:
-                st.warning(
-                    "Fitur decrypt image belum diimplementasikan "
-                    "di utils.aes_image."
+    
+                entropy_res = compute_entropy(cipher1)
+                npcr_res = calculate_npcr(cipher1, cipher2)
+                uaci_res = calculate_uaci(cipher1, cipher2)
+    
+                entropy_val = entropy_res['shannon_entropy']
+                npcr_val = npcr_res['npcr'] if isinstance(npcr_res, dict) else npcr_res
+                uaci_val = uaci_res['uaci'] if isinstance(uaci_res, dict) else uaci_res
+    
+                st.subheader("Cipher Image")
+                st.image(cipher1, clamp=True)
+                st.caption(
+                    "NPCR dan UACI dihitung dari dua cipher-image "
+                    "dengan kunci berbeda"
                 )
+    
+                col1, col2, col3 = st.columns(3)
+                col1.metric("Entropy", f"{entropy_val:.4f}")
+                col2.metric("NPCR (%)", f"{npcr_val:.2f}")
+                col3.metric("UACI (%)", f"{uaci_val:.2f}")
+    
+            else:
+                try:
+                    from utils.aes_image import decrypt_image
+                    plain_img = decrypt_image(
+                        img_np,
+                        key_bytes,
+                        st.session_state.sbox
+                    )
+                    
+                    st.subheader("Decrypted Image")
+                    st.image(plain_img, clamp=True)
+                except NotImplementedError:
+                    st.warning(
+                        "Fitur decrypt image belum diimplementasikan "
+                        "di utils.aes_image."
+                    )
 
 if __name__ == "__main__":
     main()
